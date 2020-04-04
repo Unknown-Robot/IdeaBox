@@ -17,6 +17,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.text({defaultCharset: "utf-8"}));
 app.use(passport.initialize());
 
+// DEBUG CORS ERROR LOCALHOST
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "*");
+    next();
+});
+
 require("./config/passport.js")(passport);
 
 const rooterAuth = require("./routes/auth.js");
@@ -24,6 +31,9 @@ app.use("/login", rooterAuth);
 
 const rooterUsers = require("./routes/users.js");
 app.use("/users", rooterUsers);
+
+const rooterPosts = require("./routes/posts.js");
+app.use("/posts", rooterPosts);
 
 mongoose.connect(`mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_ADDRESS}:${process.env.MONGODB_PORT}/${process.env.MONGODB_NAME}?authSource=${process.env.MONGODB_NAME}`, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false})
 .then(() => console.log("Mongoose connected to '" + process.env.MONGODB_ADDRESS + "'"))

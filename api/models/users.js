@@ -20,9 +20,15 @@ const User_Schema = new Schema({
     },
     password: {type: String, required: true, trim: true},
     localisation: {
-        city: {type: String, trim: true},
+        city: {type: String},
         zip_code: {type: String, trim: true}
-    }
+    },
+    liked_posts: [
+        {
+            post_id: {type: Schema.Types.ObjectId, ref: "posts", required: true},
+            action: {type: String, enum: ["LIKE", "DISLIKE"], required: true}
+        }, {_id: false}
+    ]
 });
 
 // Automatic convert clear password to bcrypt hash on save.
@@ -44,17 +50,20 @@ User_Schema.pre("save", async function(next) {
     // only hash the password if it has been modified (or is new)
     if(user.isModified("password")) {
         // generate a salt
+        console.log("password modified !");
         bcrypt.genSalt(10, function(err, salt) {
             if(err) return next(err);
             // hash the password using our new salt
             bcrypt.hash(user.password, salt, function(err, hash) {
                 if(err) return next(err);
                 // override the cleartext password with the hashed one
-                user.password = hash;
+                console.log(hash);
+                user.password = (hash !== null)? hash: null;
+                return next();
             });
         });
     }
-    next();
+    else return next();
 });
 
 // Compare the clear password with the crypted password

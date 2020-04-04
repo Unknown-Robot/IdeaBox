@@ -6,7 +6,7 @@ import Button from "../components/Button.js";
 import BackArrow from "../components/BackArrow.js";
 import { emailValidator, zipcodeValidator, isEmptyArray } from "../core/utils.js";
 
-import { createUser, duplicateUsername, duplicateEmail } from "../models/users.js";
+import { createUser } from "../models/users.js";
 
 export default class Register extends React.Component {
 
@@ -14,21 +14,31 @@ export default class Register extends React.Component {
         username: "",
         email: "",
         password: "",
-        zip_code: "",
+        city: "",
         error: ""
     }
 
-    Register() {
+    async Register() {
         if(isEmptyArray(this.state)) return this.setState({error: "Veuillez renseigner tous les champs."});
         else if(!emailValidator(this.state.email)) return this.setState({error: "Veuillez renseigner une adresse e-mail valide."});
         else if(this.state.password.length < 6) return this.setState({error: "Votre mot de passe doit contenir au minimum 6 caractères."});
-        else if(!zipcodeValidator(this.state.zip_code)) return this.setState({error: "Veuillez renseigner un code postal valide."});
-        else if(duplicateEmail(this.state.email)) return this.setState({error: "Cette adresse e-mail est déjà utilisée."});
-        else if(duplicateUsername(this.state.username)) return this.setState({error: "Ce nom d'utilisateur est déjà utilisé."});
         else {
-            createUser(this.state);
-            this.setState({error: ""});
-            return this.props.navigation.navigate("Login");
+            let Request = await createUser({
+                username: this.state.username,
+                email: this.state.email,
+                password: this.state.password,
+                localisation: {
+                    city: this.state.city
+                }
+            });
+            if(!Request) return this.setState({error: "Un problème est survenu, veuillez réessayer ultérieurement."});
+            if(Request.success) {
+                this.setState({error: ""});
+                return this.props.navigation.navigate("Login");
+            }
+            else if(Request.errors.email && Request.errors.email.kind === "unique") return this.setState({error: "Cette adresse e-mail est déjà utilisée."});
+            else if(Request.errors.username && Request.errors.username.kind === "unique") return this.setState({error: "Ce nom d'utilisateur est déjà utilisé."});
+            else console.log(Request);
         }
     }
 
@@ -38,10 +48,28 @@ export default class Register extends React.Component {
                 <BackArrow goBack={() => this.props.navigation.navigate("Login")}/>
                 <Text style={styles.title}>Création du compte</Text>
                 <Text style={styles.error}>{this.state.error}</Text>
-                <Input >Nom d'utilisateur</Input>
-                <Input >Adresse e-mail</Input>
-                <Input >Mot de passe</Input>
-                <Input style={styles.inputText}>Code postal</Input>
+                <Input
+                    value={this.state.username}
+                    updateData={(value) => this.setState({ username: value })}>
+                    Nom d'utilisateur
+                </Input>
+                <Input
+                    value={this.state.email}
+                    updateData={(value) => this.setState({ email: value })}>
+                    Adresse e-mail
+                </Input>
+                <Input
+                    value={this.state.password}
+                    updateData={(value) => this.setState({ password: value })}
+                    type="password">
+                    Mot de passe
+                </Input>
+                <Input
+                    value={this.state.city}
+                    updateData={(value) => this.setState({ city: value })}
+                    style={styles.inputText}>
+                    Ville
+                </Input>
                 <Button onPress={() => this.Register()}>Envoyer</Button>
             </Background>
         );

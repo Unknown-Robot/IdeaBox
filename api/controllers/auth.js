@@ -14,7 +14,7 @@ exports.login = async (req, res) => {
         };
         jwt.sign(payload, process.env.TOKEN_KEY, {expiresIn: 31556926}, function(err, Token) {
             if(err) return handleAPIError(res, err);
-            if(Token) return res.status(200).json({success: true, token: Token});
+            if(Token) return res.status(200).json({success: true, token: Token, data: _User});
         });
     });
 };

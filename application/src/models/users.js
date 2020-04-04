@@ -1,45 +1,33 @@
-import Users_Data from "../../data/users.json";
+import request from "request";
 
-export function loginUser(Email, Password) {
-    for(let i = 0; i < Users_Data.length; i++) {
-        if(Users_Data[i]["email"] == Email && Users_Data[i]["password"] == Password) {
-            return Users_Data[i];
-        }
-    }
-    return null;
+export async function loginUser(Email, Password) {
+    if(!Email || !Password) return null;
+    return new Promise((resolve, reject) => {
+        request({
+            headers: {"content-type" : "application/json; charset=utf-8"},
+            url: "http://localhost:3000/login",
+            method: "POST",
+            body: JSON.stringify({email: Email, password: Password})
+        }, (err, response, body) => {
+            if(err) reject(err);
+            if(body) resolve(JSON.parse(body));
+            else resolve(null);
+        });
+    });
 }
 
-export function getUserById(id) {
-    for(let i = 0; i < Users_Data.length; i++) {
-        if(Users_Data[i]["id"] == id) return Users_Data[i];
-    }
-    return null;
-}
-
-export function createUser(User) {
-    console.log(User);
-    console.log("User created !");
-}
-
-export function updateUser(User) {
-    console.log(User);
-    console.log("User updated !");
-}
-
-export function deleteUserById(id) {
-    console.log("User n°" + id + " deleted !");
-}
-
-export function duplicateUsername(Username) {
-    for(let i = 0; i < Users_Data.length; i++) {
-        if(Users_Data[i]["username"] == Username) return true;
-    }
-    return false;
-}
-
-export function duplicateEmail(Email) {
-    for(let i = 0; i < Users_Data.length; i++) {
-        if(Users_Data[i]["email"] == Email) return true;
-    }
-    return false;
+export async function createUser(User) {
+    if(!User) return null;
+    return new Promise((resolve, reject) => {
+        request({
+            headers: {"content-type" : "application/json; charset=utf-8"},
+            url: "http://localhost:3000/users/create",
+            method: "POST",
+            body: JSON.stringify({create: User})
+        }, (err, response, body) => {
+            if(err) reject(err);
+            if(body) resolve(JSON.parse(body));
+            else resolve(null);
+        });
+    });
 }

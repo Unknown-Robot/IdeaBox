@@ -10,17 +10,19 @@ import { loginUser } from "../models/users.js";
 export default class Login extends React.Component {
     state = {
         email: "damien.caron@hetic.net",
-        password: "azerty",
+        password: "azertyuiop",
         error: ""
     }
 
-    Login() {
+    async Login() {
         if(isEmptyArray(this.state)) return this.setState({error: "Veuillez renseigner tous les champs."});
         else if(!emailValidator(this.state.email)) return this.setState({error: "Veuillez renseigner une adresse e-mail valide."});
         else {
-            let User = loginUser(this.state.email, this.state.password);
-            if(User) return this.props.navigation.navigate("Home", {
-                user: User
+            let Request = await loginUser(this.state.email, this.state.password);
+            if(!Request) return this.setState({error: "Un problème est survenu, veuillez réessayer ultérieurement."});
+            if(Request.success) return this.props.navigation.navigate("Home", {
+                user: Request["data"],
+                token: Request["token"]
             });
             else return this.setState({error: "Adresse e-mail / mot de passe incorrect."});
         }
@@ -44,7 +46,6 @@ export default class Login extends React.Component {
                 </Input>
                 <Text style={styles.forgot} onPress={() => this.props.navigation.navigate("Forgot")}>Mot de passe oublié ?</Text>
                 <Button onPress={() => this.Login()}>Connection</Button>
-                {/* <Button onPress={() => this.props.navigation.navigate("Home")}>Connection</Button> */} 
                 <Button onPress={() => this.props.navigation.navigate("Register")}>Inscription</Button>
             </Background>
         );

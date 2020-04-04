@@ -3,14 +3,16 @@ import { Text, StyleSheet, View, ScrollView, RefreshControl } from "react-native
 import Background from "../components/Background.js";
 import Postmin from "../components/Postmin.js";
 import MenuBar from "../components/MenuBar.js";
+import SearchBar from "../components/SearchBar.js";
 
 import moment from "moment";
 
 import { getAllPost } from "../models/post.js";
 
-export default class Home extends React.Component {
+export default class Search extends React.Component {
 
     state = {
+        searchValue: "",
         posts: []
     }
 
@@ -49,12 +51,13 @@ export default class Home extends React.Component {
             return (
                 <Text style={styles.emptyResult}>Aucun résultat.</Text>
             );
-        }
+        }  
     }
 
     render() {
         return (
             <Background mode="no-padding">
+                <SearchBar/>
                 <ScrollView 
                     style={styles.scrollView} 
                     showsVerticalScrollIndicator={false}

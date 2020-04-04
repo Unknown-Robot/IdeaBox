@@ -4,6 +4,8 @@ import LoginScreen from "./src/screens/LoginScreen.js";
 import RegisterScreen from "./src/screens/RegisterScreen.js";
 import ForgotPasswordScreen from "./src/screens/ForgotPasswordScreen.js";
 import HomeScreen from "./src/screens/HomeScreen.js";
+import SearchScreen from "./src/screens/SearchScreen.js";
+import SettingScreen from "./src/screens/SettingScreen.js"
 import Post from "./src/screens/PostScreen.js";
 
 import { NavigationContainer } from "@react-navigation/native";
@@ -39,6 +41,20 @@ function App() {
                 <Stack.Screen
                     name="Home"
                     component={HomeScreen}
+                    options={{
+                        gestureEnabled: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Search"
+                    component={SearchScreen}
+                    options={{
+                        gestureEnabled: false
+                    }}
+                />
+                <Stack.Screen
+                    name="Setting"
+                    component={SettingScreen}
                     options={{
                         gestureEnabled: false
                     }}

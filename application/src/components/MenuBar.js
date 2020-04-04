@@ -5,13 +5,28 @@ export default class MenuBar extends React.Component {
     render() {
         return (
             <View style={styles.view}>
-                <TouchableOpacity style={styles.container}>
+                <TouchableOpacity 
+                    style={styles.container}
+                    onPress={() => this.props.navigation.navigate("Home", {
+                        token: this.props.route.params.token,
+                        user: this.props.route.params.user
+                    })}>
 				    <Image style={styles.image} source={require("../assets/home.png")} />
 			    </TouchableOpacity>
-                <TouchableOpacity style={styles.container}>
+                <TouchableOpacity 
+                    style={styles.container}
+                    onPress={() => this.props.navigation.navigate("Search", {
+                        token: this.props.route.params.token,
+                        user: this.props.route.params.user
+                    })}>
 				    <Image style={styles.image} source={require("../assets/search.png")} />
 			    </TouchableOpacity>
-                <TouchableOpacity style={styles.container}>
+                <TouchableOpacity 
+                    style={styles.container}
+                    onPress={() => this.props.navigation.navigate("Setting", {
+                        token: this.props.route.params.token,
+                        user: this.props.route.params.user
+                    })}>
 				    <Image style={styles.image} source={require("../assets/setting.png")} />
 			    </TouchableOpacity>
             </View>

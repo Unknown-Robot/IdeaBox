@@ -1,41 +1,26 @@
-import Post_Data from "../../data/post.json";
+import request from "request";
 
-export function getAllPost() {
-    return Post_Data.sort(function(a, b) { return b["up"] - a["up"]});   
-}
-
-export function getAllPostByCity(value) {
-    let result = [];
-    for(let i = 0; i < Post_Data.length; i++) {
-        if(Post_Data[i]["city"].includes(value) || Post_Data[i]["zip_code"] == value) result.push(Post_Data[i]);
-    }
-    return result.sort(function(a, b) { return b["up"] - a["up"]});
-}
-
-export function getPostById(id) {
-    for(let i = 0; i < Post_Data.length; i++) {
-        if(Post_Data[i]["id"] == id) return Post_Data[i];
-    }
-    return null;
-}
-
-export function getPostByCity(value) {
-    for(let i = 0; i < Post_Data.length; i++) {
-        if(Post_Data[i]["city"].includes(value) || Post_Data[i]["zip_code"] == value) return Post_Data[i];
-    }
-    return null;
-}
-
-export function createPost(Post) {
-    console.log(Post);
-    console.log("Post created !");
-}
-
-export function updatePost(Post) {
-    console.log(Post);
-    console.log("Post updated !");
-}
-
-export function deletePostById(id) {
-    console.log("Post n°" + id + " deleted !");
+export function getAllPost(Token, City) {
+    return new Promise((resolve, reject) => {
+        request({
+            headers: {"content-type" : "application/json; charset=utf-8", "Authorization": "Bearer " + Token},
+            url: "http://localhost:3000/posts/list",
+            method: "GET",
+            body: JSON.stringify({
+                selector: {
+                    localisation: {
+                        city: City
+                    },
+                },
+                sort: {
+                    up: -1
+                },
+                limit: 25
+            })
+        }, (err, response, body) => {
+            if(err) reject(err);
+            if(body) resolve(JSON.parse(body));
+            else resolve(null);
+        });
+    }); 
 }

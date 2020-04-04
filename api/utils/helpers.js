@@ -32,10 +32,9 @@ const checkEmail = (email) => {
 const handleAPIError = (res, error) => {
     let status = 500;
     let APIErrors = {};
-
     // Handle types of errors
-    if (error instanceof mongoose.Error.ValidationError) {
-        for (const [field, fieldError] of Object.entries(error.errors)) {
+    if(error instanceof mongoose.Error.ValidationError) {
+        for(const [field, fieldError] of Object.entries(error.errors)) {
             APIErrors[field] = {
                 path: fieldError.path,
                 value: fieldError.value,
@@ -43,10 +42,8 @@ const handleAPIError = (res, error) => {
             };
         }
         status = 400;
-    } else {
-        APIErrors = error;
     }
-
+    else APIErrors = error;
     // Return errors
     return res.status(status).send({
         success: false,
