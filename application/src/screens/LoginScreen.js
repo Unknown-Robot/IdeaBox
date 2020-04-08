@@ -5,8 +5,6 @@ import Input from "../components/Input.js";
 import Button from "../components/Button.js";
 import { emailValidator, isEmptyArray } from "../core/utils.js";
 
-import { loginUser } from "../models/users.js";
-
 export default class Login extends React.Component {
     state = {
         email: "damien.caron@hetic.net",
@@ -18,13 +16,24 @@ export default class Login extends React.Component {
         if(isEmptyArray(this.state)) return this.setState({error: "Veuillez renseigner tous les champs."});
         else if(!emailValidator(this.state.email)) return this.setState({error: "Veuillez renseigner une adresse e-mail valide."});
         else {
-            let Request = await loginUser(this.state.email, this.state.password);
-            if(!Request) return this.setState({error: "Un problème est survenu, veuillez réessayer ultérieurement."});
-            if(Request.success) return this.props.navigation.navigate("Home", {
-                user: Request["data"],
-                token: Request["token"]
+            fetch("http://localhost:3000/login", {
+                headers: {"content-type" : "application/json; charset=utf-8"},
+                method: "POST",
+                body: JSON.stringify({email: this.state.email, password: this.state.password})
+            })
+            .then((response) => response.json())
+            .then((Data) => {
+                if(!Data) return this.setState({error: "Un problème est survenu, veuillez réessayer ultérieurement."});
+                if(Data.success) return this.props.navigation.navigate("Home", {
+                    user: Data["data"],
+                    token: Data["token"]
+                });
+                else return this.setState({error: "Adresse e-mail / mot de passe incorrect."});
+            })
+            .catch((error) => {
+                console.error(error);
+                return this.setState({error: "Un problème est survenu, veuillez réessayer ultérieurement."});
             });
-            else return this.setState({error: "Adresse e-mail / mot de passe incorrect."});
         }
     }
 

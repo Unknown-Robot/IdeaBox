@@ -4,9 +4,7 @@ import Background from "../components/Background.js";
 import Input from "../components/Input.js";
 import Button from "../components/Button.js";
 import BackArrow from "../components/BackArrow.js";
-import { emailValidator, zipcodeValidator, isEmptyArray } from "../core/utils.js";
-
-import { createUser } from "../models/users.js";
+import { emailValidator, isEmptyArray } from "../core/utils.js";
 
 export default class Register extends React.Component {
 
@@ -23,22 +21,33 @@ export default class Register extends React.Component {
         else if(!emailValidator(this.state.email)) return this.setState({error: "Veuillez renseigner une adresse e-mail valide."});
         else if(this.state.password.length < 6) return this.setState({error: "Votre mot de passe doit contenir au minimum 6 caractères."});
         else {
-            let Request = await createUser({
-                username: this.state.username,
-                email: this.state.email,
-                password: this.state.password,
-                localisation: {
-                    city: this.state.city
+            fetch("http://localhost:3000/users/create", {
+                headers: {"content-type" : "application/json; charset=utf-8"},
+                method: "POST",
+                body: JSON.stringify({create: {
+                    username: this.state.username,
+                    email: this.state.email,
+                    password: this.state.password,
+                    localisation: {
+                        city: this.state.city
+                    }
+                }})
+            })
+            .then((response) => response.json())
+            .then((Data) => {
+                if(!Data) return this.setState({error: "Un problème est survenu, veuillez réessayer ultérieurement."});
+                if(Data.success) {
+                    this.setState({error: ""});
+                    return this.props.navigation.navigate("Login");
                 }
+                else if(Data.errors.email && Data.errors.email.kind === "unique") return this.setState({error: "Cette adresse e-mail est déjà utilisée."});
+                else if(Data.errors.username && Data.errors.username.kind === "unique") return this.setState({error: "Ce nom d'utilisateur est déjà utilisé."});
+                else return console.log(Data);
+            })
+            .catch((error) => {
+                console.error(error);
+                return this.setState({error: "Un problème est survenu, veuillez réessayer ultérieurement."});
             });
-            if(!Request) return this.setState({error: "Un problème est survenu, veuillez réessayer ultérieurement."});
-            if(Request.success) {
-                this.setState({error: ""});
-                return this.props.navigation.navigate("Login");
-            }
-            else if(Request.errors.email && Request.errors.email.kind === "unique") return this.setState({error: "Cette adresse e-mail est déjà utilisée."});
-            else if(Request.errors.username && Request.errors.username.kind === "unique") return this.setState({error: "Ce nom d'utilisateur est déjà utilisé."});
-            else console.log(Request);
         }
     }
 

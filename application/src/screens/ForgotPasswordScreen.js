@@ -6,8 +6,6 @@ import Button from "../components/Button.js";
 import BackArrow from "../components/BackArrow.js";
 import { isNullorEmpty, emailValidator } from "../core/utils.js";
 
-import { duplicateEmail } from "../models/users.js";
-
 export default class Forgot extends React.Component {
 
     state = {

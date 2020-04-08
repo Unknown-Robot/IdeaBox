@@ -5,8 +5,8 @@ export default class MenuBar extends React.Component {
     render() {
         return (
             <View style={styles.view}>
-                <TouchableOpacity 
-                    style={styles.container}
+                <TouchableOpacity
+                    style={this.props.route.name === "Home"? styles.active: styles.container}
                     onPress={() => this.props.navigation.navigate("Home", {
                         token: this.props.route.params.token,
                         user: this.props.route.params.user
@@ -14,7 +14,7 @@ export default class MenuBar extends React.Component {
 				    <Image style={styles.image} source={require("../assets/home.png")} />
 			    </TouchableOpacity>
                 <TouchableOpacity 
-                    style={styles.container}
+                    style={this.props.route.name === "Search"? styles.active: styles.container}
                     onPress={() => this.props.navigation.navigate("Search", {
                         token: this.props.route.params.token,
                         user: this.props.route.params.user
@@ -22,7 +22,7 @@ export default class MenuBar extends React.Component {
 				    <Image style={styles.image} source={require("../assets/search.png")} />
 			    </TouchableOpacity>
                 <TouchableOpacity 
-                    style={styles.container}
+                    style={this.props.route.name === "Setting"? styles.active: styles.container}
                     onPress={() => this.props.navigation.navigate("Setting", {
                         token: this.props.route.params.token,
                         user: this.props.route.params.user
@@ -53,6 +53,14 @@ const styles = StyleSheet.create({
         height: "100%",
         justifyContent: "center",
         alignItems: "center",
+        opacity: 0.50
+    },
+    active: {
+        width: "33.33%",
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        opacity: 1.0
     },
     image: {
         width: 24,

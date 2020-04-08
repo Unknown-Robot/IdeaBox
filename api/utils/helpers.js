@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const request = require("request");
+const moment = require("moment");
 
 const Update_Data = (Data, Update) => {
     for(let key in Update) {
@@ -63,6 +64,13 @@ const getGeographicData = async (data) => {
     });
 }
 
+function Log(IP=null, Message) {
+    let Now = moment();
+    let Datetime_String = Now.format("DD/MM/YYYY H:m:ss");
+    if(IP !== null) console.log(Datetime_String + " [" + IP + "] => " + Message);
+    else console.log(Datetime_String + " => " + Message);
+}
+
 module.exports = {
     Update_Data,
     formatSingular,
@@ -70,5 +78,6 @@ module.exports = {
     formatName,
     checkEmail,
     handleAPIError,
-    getGeographicData
+    getGeographicData,
+    Log
 };

@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
-const { Update_Data, formatName, handleAPIError } = require("../utils/helpers");
+const { Update_Data, formatName, handleAPIError, Log } = require("../utils/helpers");
 
 exports.create = Schema => {
     const Schema_Name = formatName(Schema.collection.collectionName);
 
     return async (req, res) => {
-        console.log(`API Request : Create new ${Schema_Name["singular"]}.`);
+        let IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        Log(IP, `API Request : Create new ${Schema_Name["singular"]}.`);
         if (!req.body.create) return res.status(400).send({success: false, message: "Create object is null."});
 
         Schema.create(req.body.create, (err, Data) => {
@@ -19,7 +20,8 @@ exports.get = Schema => {
     const Schema_Name = formatName(Schema.collection.collectionName);
 
     return async (req, res) => {
-        console.log(`API Request : Get ${Schema_Name["singular"]}.`);
+        let IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        Log(IP, `API Request : Get ${Schema_Name["singular"]}.`);
         if (
             !req.params.id ||
             !mongoose.Types.ObjectId.isValid(req.params.id)
@@ -38,25 +40,31 @@ exports.list = Schema => {
     const Schema_Name = formatName(Schema.collection.collectionName);
 
     return async (req, res) => {
-        console.log(`API Request : Get ${Schema_Name["plural"]} list.`);
-        let selector = (req.body.selector) ? req.body.selector : {};
-        if (!selector) return res.status(400).send({success: false, message: "Selector object is null."});
+        let IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        Log(IP, `API Request : Get ${Schema_Name["plural"]} list.`);
+        try {
+            let selector = (req.query.selector) ? JSON.parse(req.query.selector) : {};
+            if (!selector) return res.status(400).send({success: false, message: "Selector object is null."});
 
-        let limit = (req.body.limit) ? req.body.limit : 100,
-            offset = (req.body.offset) ? req.body.offset : 0,
-            sort = (req.body.sort) ? req.body.sort : {createdAt: -1},
-            isDeleted = (req.body.isDeleted) ? req.body.isDeleted : false;
+            let limit = (req.query.limit) ? parseInt(req.query.limit) : 100,
+                offset = (req.query.offset) ? req.query.offset : 0,
+                sort = (req.query.sort) ? JSON.parse(req.query.sort) : {createdAt: -1},
+                isDeleted = (req.query.isDeleted) ? req.query.isDeleted : false;
 
-        Schema.find(selector, (err, List_Data) => {
-            if (err) return handleAPIError(res, err);
-            if (List_Data.length === 0) return res.status(404).send({success: false, message: `${Schema_Name["plural"]} list is empty.`});
-
-            return res.status(200).send({success: true, data: List_Data});
-        })
+            Schema.find(selector, (err, List_Data) => {
+                if (err) return handleAPIError(res, err);
+                if (List_Data.length === 0) return res.status(404).send({success: false, message: `${Schema_Name["plural"]} list is empty.`});
+                return res.status(200).send({success: true, data: List_Data});
+            })
             .sort(sort)
             .isDeleted(isDeleted)
             .skip(offset)
             .limit(limit);
+        }
+        catch(error) {
+            if (error) return handleAPIError(res, error);
+            console.log(error);
+        }
     }
 };
 
@@ -64,7 +72,8 @@ exports.update = Schema => {
     const Schema_Name = formatName(Schema.collection.collectionName);
 
     return async (req, res) => {
-        console.log(`API Request : Update ${Schema_Name["singular"]}.`);
+        let IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        Log(IP, `API Request : Update ${Schema_Name["singular"]}.`);
         if (
             !req.params.id ||
             !mongoose.Types.ObjectId.isValid(req.params.id)
@@ -91,7 +100,8 @@ exports.delete = Schema => {
     const Schema_Name = formatName(Schema.collection.collectionName);
 
     return async (req, res) => {
-        console.log(`API Request : Delete ${Schema_Name["singular"]}.`);
+        let IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        Log(IP, `API Request : Delete ${Schema_Name["singular"]}.`);
         if (
             !req.params.id ||
             !mongoose.Types.ObjectId.isValid(req.params.id)
@@ -113,7 +123,8 @@ exports.restore = Schema => {
     const Schema_Name = formatName(Schema.collection.collectionName);
 
     return async (req, res) => {
-        console.log(`API Request : Restore ${Schema_Name["singular"]}.`);
+        let IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+        Log(IP, `API Request : Restore ${Schema_Name["singular"]}.`);
         if (
             !req.params.id ||
             !mongoose.Types.ObjectId.isValid(req.params.id)

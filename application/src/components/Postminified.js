@@ -1,7 +1,7 @@
 import * as React from "react";
 import { StyleSheet, Text, TouchableOpacity, Image, View } from "react-native";
 
-export default class Postmin extends React.Component {
+export default class Postminified extends React.Component {
     render() {
         return (
             <TouchableOpacity style={[
@@ -36,17 +36,15 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 160,
         backgroundColor: "white",
-        borderBottomWidth: 1,
-        borderColor: "black",
+        marginBottom: 15,
 
         shadowColor: "#000",
         shadowOffset: {
-        	width: 0,
+        	width: 2,
         	height: 2,
         },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
-
         elevation: 5,
     },
     title: {
@@ -108,20 +106,21 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     imageUp: {
-		width: 25,
-        height: 25,
+		width: 24,
+        height: 24,
         transform: [{rotate: "90deg"}],
     },
     imageDown: {
-		width: 25,
-        height: 25,
+		width: 24,
+        height: 24,
         transform: [{rotate: "-90deg"}],
-        marginLeft: 10,
+        marginLeft: 7.50,
     },
     imageComments: {
-        width: 25,
-        height: 25,
-        marginLeft: 10,
+        width: 20,
+        height: 20,
+        marginLeft: 7.50,
+        marginTop: 4
     },
     date: {
         position: "absolute",

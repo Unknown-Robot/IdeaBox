@@ -1,13 +1,11 @@
 import * as React from "react";
 import { Text, StyleSheet, View, ScrollView, RefreshControl } from "react-native";
 import Background from "../components/Background.js";
-import Postmin from "../components/Postmin.js";
+import Postmin from "../components/Postminified.js";
 import MenuBar from "../components/MenuBar.js";
 import SearchBar from "../components/SearchBar.js";
 
 import moment from "moment";
-
-import { getAllPost } from "../models/post.js";
 
 export default class Search extends React.Component {
 
@@ -16,13 +14,10 @@ export default class Search extends React.Component {
         posts: []
     }
 
-    async componentDidMount(){
-        let AllPost = await getAllPost(this.props.route.params.token, this.props.route.params.user.localisation["city"]);
-        if(AllPost.success) {
-            AllPost["data"].sort(function(a, b) { return b["up"] - a["up"]});
-            this.setState({posts: AllPost["data"]});
-        }
-        else throw new Error("Error get all posts data.");
+    async componentDidMount() {
+        let AllPosts = await getAllPost(this.props.route.params.token, this.props.route.params.user.localisation["city"]);
+        if(AllPosts) this.setState({posts: AllPosts});
+        else console.error(AllPosts);
     }
 
     renderPost() {
@@ -30,7 +25,7 @@ export default class Search extends React.Component {
             return this.state.posts.map((value, i) => {
                 let last = (i === this.state.posts.length - 1)? "true": "false"
                 return (
-                    <Postmin 
+                    <Postmin
                         key={i}
                         _id={value._id}
                         title={value.title}
@@ -70,7 +65,7 @@ export default class Search extends React.Component {
                 >
                     {this.renderPost()}
                 </ScrollView>
-                <MenuBar/>
+                <MenuBar {...this.props}/>
             </Background>
         );
     }

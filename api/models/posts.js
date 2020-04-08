@@ -9,6 +9,7 @@ const Post_Schema = new Schema({
     description: {type: String, required: true},
     up: {type: Number, default: 0},
     down: {type: Number, default: 0},
+    user_id: {type: Schema.Types.ObjectId, ref: "users", required: true},
     localisation: {
         city: {type: String},
         zip_code: {type: String, trim: true}

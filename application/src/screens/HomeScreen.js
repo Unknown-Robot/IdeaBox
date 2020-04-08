@@ -1,34 +1,65 @@
 import * as React from "react";
 import { Text, StyleSheet, View, ScrollView, RefreshControl } from "react-native";
 import Background from "../components/Background.js";
-import Postmin from "../components/Postmin.js";
+import Postminified from "../components/Postminified.js";
 import MenuBar from "../components/MenuBar.js";
-
 import moment from "moment";
-
-import { getAllPost } from "../models/post.js";
 
 export default class Home extends React.Component {
 
     state = {
-        posts: []
+        posts: [],
+        refreshing: false
     }
 
-    async componentDidMount(){
-        let AllPost = await getAllPost(this.props.route.params.token, this.props.route.params.user.localisation["city"]);
-        if(AllPost.success) {
-            AllPost["data"].sort(function(a, b) { return b["up"] - a["up"]});
-            this.setState({posts: AllPost["data"]});
-        }
-        else throw new Error("Error get all posts data.");
+    async componentDidMount() {
+        let params = JSON.stringify({
+            selector: {
+                localisation: {
+                    city: this.props.route.params.user.localisation["city"]
+                },
+            },
+            sort: {
+                up: -1
+            },
+            limit: 25
+        });
+        fetch("http://localhost:3000/posts/list?" + encodeURI(params), {
+            headers: {"content-type" : "application/json; charset=utf-8", "Authorization": "Bearer " + this.props.route.params.token},
+            method: "GET"
+        })
+        .then((response) => response.json())
+        .then((Data) => {
+            if(!Data || (Data && Data["data"].length === 0)) return console.log("Empty posts.");
+            if(Data.success) {
+                Data["data"].sort(function(a, b) { return b["up"] - a["up"]}); // Sort by asc "up" key
+                this.setState({posts: Data["data"]});
+            }
+            else console.log(Data["errors"]);
+        })
+        .catch((error) => {
+            return console.error(error);
+        });
     }
+
+    /* onRefresh() {
+        console.log("Refresh page..");
+        this.setState({refreshing: true});
+        getAllPost(this.props.route.params.token, this.props.route.params.user.localisation["city"]).then((AllPosts) => {
+            if(AllPosts) this.setState({posts: AllPosts});
+            this.setState({refreshing: false});
+        }).catch((error) => {
+            console.log(error);
+            this.setState({refreshing: false});
+        });
+    } */
 
     renderPost() {
         if(this.state.posts.length > 0) {
             return this.state.posts.map((value, i) => {
                 let last = (i === this.state.posts.length - 1)? "true": "false"
                 return (
-                    <Postmin 
+                    <Postminified 
                         key={i}
                         _id={value._id}
                         title={value.title}
@@ -61,13 +92,16 @@ export default class Home extends React.Component {
                     /* refreshControl={
                         <RefreshControl
                             refreshing={this.state.refreshing}
-                            onRefresh={this.onRefresh()}
+                            onRefresh={this.onRefresh.bind(this)}
                         />
                     } */
                 >
+                    <Text style={styles.welcome}>
+                        Voici les demandes les plus récentes dans votre ville {this.props.route.params.user.localisation["city"]}
+                    </Text>
                     {this.renderPost()}
                 </ScrollView>
-                <MenuBar/>
+                <MenuBar {...this.props}/>
             </Background>
         );
     }
@@ -85,8 +119,15 @@ const styles = StyleSheet.create({
         width: "100%",
         zIndex: 99,
         overflow: "hidden",
-        marginTop: 40,
+        marginTop: 10,
         marginBottom: 40
+    },
+    welcome: {
+        marginLeft: 10,
+        marginRight: 10,
+        marginBottom: 40,
+        textAlign: "left",
+        fontSize: 18
     }
 });
 

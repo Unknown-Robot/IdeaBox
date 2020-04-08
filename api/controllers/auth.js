@@ -1,9 +1,10 @@
 const User = require("../models/users.js");
 const jwt = require("jsonwebtoken");
-const { handleAPIError } = require('../utils/helpers.js');
+const { handleAPIError, Log } = require("../utils/helpers.js");
 
 exports.login = async (req, res) => {
-    console.log("API Request : Login");
+    let IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    Log(IP, "API Request : Login");
     const {email, password} = req.body;
     if(!email || !password) return res.status(400).send({success: false, message: "Login data is null."});
     User.findOne({"email": email}, async function(err, _User) {
@@ -14,7 +15,15 @@ exports.login = async (req, res) => {
         };
         jwt.sign(payload, process.env.TOKEN_KEY, {expiresIn: 31556926}, function(err, Token) {
             if(err) return handleAPIError(res, err);
-            if(Token) return res.status(200).json({success: true, token: Token, data: _User});
+            if(Token) {
+
+                return res.status(200).json({success: true, token: Token, data: CleanUserInformations(_User)});
+            }
         });
     });
 };
+
+function CleanUserInformations(_User) {
+    delete _User["password"];
+    return _User
+}

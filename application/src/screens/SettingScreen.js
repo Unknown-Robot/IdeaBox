@@ -17,9 +17,8 @@ export default class Setting extends React.Component {
                     style={styles.scrollView} 
                     showsVerticalScrollIndicator={false}
                 >
-                    TODO TEXT BUTTON
                 </ScrollView>
-                <MenuBar/>
+                <MenuBar {...this.props}/>
             </Background>
         );
     }

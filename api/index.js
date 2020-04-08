@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const passport = require("passport");
+const moment = require("moment");
 
 console.clear();
 
@@ -11,6 +12,9 @@ console.clear();
 dotenv.config({
     path: "./.env"
 });
+
+// Initialization moment
+moment.locale("fr");
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -35,12 +39,12 @@ app.use("/users", rooterUsers);
 const rooterPosts = require("./routes/posts.js");
 app.use("/posts", rooterPosts);
 
-mongoose.connect(`mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_ADDRESS}:${process.env.MONGODB_PORT}/${process.env.MONGODB_NAME}?authSource=${process.env.MONGODB_NAME}`, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false})
-.then(() => console.log("Mongoose connected to '" + process.env.MONGODB_ADDRESS + "'"))
-.catch(error => {throw error});
-
 app.listen(process.env.SERVER_PORT, process.env.SERVER_ADDRESS, () => {
-    console.log(`App listening on port ${process.env.SERVER_ADDRESS}:${process.env.SERVER_PORT}`);
+    console.log(`The API is listening at this address : '${process.env.SERVER_ADDRESS}:${process.env.SERVER_PORT}'`);
 });
+
+mongoose.connect(`mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_ADDRESS}:${process.env.MONGODB_PORT}/${process.env.MONGODB_NAME}?authSource=${process.env.MONGODB_NAME}`, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false})
+.then(() => console.log("The API is connected to the MongoDB server at this address : '" + process.env.MONGODB_ADDRESS + ":" + process.env.MONGODB_PORT + "'"))
+.catch(error => {throw error});
 
 module.exports = app;
