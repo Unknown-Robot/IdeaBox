@@ -1,12 +1,12 @@
 import * as React from "react";
-import { TouchableOpacity, Image, StyleSheet } from "react-native";
-import Background from "./Background";
+import { TouchableOpacity, StyleSheet } from "react-native";
+import { MaterialIcons } from "react-native-vector-icons";
 
 export default class AddPostButton extends React.Component {
 	render() {
 		return (
-			<TouchableOpacity style={styles.container} onPress={this.props.goTo}>
-				<Image style={styles.image} source={require("../assets/add.png")} />
+			<TouchableOpacity style={styles.container} onPress={this.props.addPress}>
+				<MaterialIcons name="add-circle-outline" color={"black"} size={48}/>
 			</TouchableOpacity>
 		);
 	};
@@ -15,16 +15,10 @@ export default class AddPostButton extends React.Component {
 const styles = StyleSheet.create({
 	container: {
 		position: "absolute",
-		width: 36,
-		height: 36,
-		bottom: 50,
-		right: 15,
-		zIndex: 999,
+		bottom: 20,
+		right: 20,
 		backgroundColor: "white",
-		borderRadius: 50
-	},
-	image: {
-		width: 36,
-		height: 36,
-	},
+		borderRadius: 100,
+		zIndex: 999
+	}
 });

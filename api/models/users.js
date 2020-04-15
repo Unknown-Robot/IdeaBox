@@ -1,12 +1,13 @@
-const helpers = require("../utils/helpers");
+const helpers = require(__basedir + "/utils/helpers");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const uniqueMongoose = require("mongoose-unique-validator");
-const softDelete = require("../utils/soft-delete.js");
+const softDelete = require(__basedir + "/utils/soft-delete.js");
 const Schema = mongoose.Schema;
 
 const User_Schema = new Schema({
-    username: {type: String, required: true, unique: true, trim: true},
+    first_name: {type: String, required: true, unique: true, trim: true},
+    last_name: {type: String, required: true, unique: true, trim: true},
     email: {
         type: String,
         required: true,
@@ -18,22 +19,30 @@ const User_Schema = new Schema({
             kind: "not valid email"
         }
     },
+    profile_pic: {type: String, required: true, unique: true, trim: true, default: "images/profile-pic/user-default.png"},
     password: {type: String, required: true, trim: true},
     localisation: {
         city: {type: String},
         zip_code: {type: String, trim: true}
     },
-    liked_posts: [
-        {
-            post_id: {type: Schema.Types.ObjectId, ref: "posts", required: true},
-            action: {type: String, enum: ["LIKE", "DISLIKE"], required: true}
-        }, {_id: false}
-    ]
+    liked_posts: [{
+        _id: false,
+        post_id: {type: Schema.Types.ObjectId, ref: "posts", unique: true},
+        action: {type: String, enum: ["LIKE", "DISLIKE"]}
+    }]
 });
 
 // Automatic convert clear password to bcrypt hash on save.
 User_Schema.pre("save", async function(next) {
     let user = this;
+
+    if(user.isModified("profile_pic")) {
+        
+    }
+
+    if(user.isModified("liked_posts")) {
+
+    }
 
     // Get city or postal code with gouv API.
     if(user.isModified("localisation")) {

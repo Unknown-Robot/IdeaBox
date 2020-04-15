@@ -2,18 +2,6 @@ const mongoose = require("mongoose");
 const request = require("request");
 const moment = require("moment");
 
-const Update_Data = (Data, Update) => {
-    for(let key in Update) {
-        if(key in Data) {
-            if(typeof(Update[key]) === "array" || typeof(Update[key]) === "object") {
-                Data[key] = Update_Data(Data[key], Update[key]);
-            }
-            else Data[key] = Update[key];
-        }
-    }
-    return Data;
-};
-
 const formatSingular = pluralCollectionName => pluralCollectionName.substring(0, pluralCollectionName.length - 1);
 
 const formatCapitalize = pluralCollectionName => pluralCollectionName.charAt(0).toUpperCase() + pluralCollectionName.slice(1);
@@ -45,6 +33,7 @@ const handleAPIError = (res, error) => {
         status = 400;
     }
     else APIErrors = error;
+    console.log(APIErrors);
     // Return errors
     return res.status(status).send({
         success: false,
@@ -64,20 +53,39 @@ const getGeographicData = async (data) => {
     });
 }
 
+function CleanPublicData(User) {
+    if(!Array.isArray(User)) {
+        if("user" in User) {
+            User.user.password = undefined;
+            User.user._v = undefined;
+        }
+        else {
+            User.password = undefined;
+            User._v = undefined;
+        }
+    }
+    else {
+        for(let i = 0; i < User.length; i++) {
+            User[i] = CleanPublicData(User[i]);
+        }
+    }
+    return User;
+}
+
 function Log(IP=null, Message) {
     let Now = moment();
-    let Datetime_String = Now.format("DD/MM/YYYY H:m:ss");
+    let Datetime_String = Now.format("DD/MM/YYYY H:mm:ss");
     if(IP !== null) console.log(Datetime_String + " [" + IP + "] => " + Message);
     else console.log(Datetime_String + " => " + Message);
 }
 
 module.exports = {
-    Update_Data,
     formatSingular,
     formatCapitalize,
     formatName,
     checkEmail,
     handleAPIError,
     getGeographicData,
-    Log
+    Log,
+    CleanPublicData
 };

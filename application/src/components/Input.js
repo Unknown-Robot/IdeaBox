@@ -19,9 +19,11 @@ const styles = StyleSheet.create({
     inputText: {
         width: "100%",
         maxWidth: 340,
-        height: 50,
+        minHeight: 50,
         marginVertical: 10,
         paddingLeft: 20,
-        borderBottomWidth: 1
-    },
+        borderBottomWidth: 1,
+        fontSize: 14,
+        fontFamily: "VarelaRound"
+    }
 });

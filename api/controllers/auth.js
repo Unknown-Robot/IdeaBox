@@ -1,6 +1,6 @@
-const User = require("../models/users.js");
+const User = require(__basedir + "/models/users.js");
 const jwt = require("jsonwebtoken");
-const { handleAPIError, Log } = require("../utils/helpers.js");
+const { handleAPIError, Log, CleanPublicData } = require(__basedir + "/utils/helpers.js");
 
 exports.login = async (req, res) => {
     let IP = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
@@ -13,17 +13,11 @@ exports.login = async (req, res) => {
         const payload = {
             id: _User._id
         };
-        jwt.sign(payload, process.env.TOKEN_KEY, {expiresIn: 31556926}, function(err, Token) {
+        jwt.sign(payload, process.env.TOKEN_KEY, {expiresIn: "7 days"}, function(err, Token) {
             if(err) return handleAPIError(res, err);
             if(Token) {
-
-                return res.status(200).json({success: true, token: Token, data: CleanUserInformations(_User)});
+                return res.status(200).json({success: true, token: Token, data: CleanPublicData(_User)});
             }
         });
     });
 };
-
-function CleanUserInformations(_User) {
-    delete _User["password"];
-    return _User
-}
