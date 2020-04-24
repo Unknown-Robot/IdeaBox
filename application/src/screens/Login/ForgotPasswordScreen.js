@@ -1,14 +1,17 @@
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import ScalableText from "react-native-text";
 import Wrapper from "../../components/Wrapper.js";
 import Input from "../../components/Input.js";
 import Button from "../../components/Button.js";
 import BackButton from "../../components/BackButton.js";
+import Titleline from "../../components/Titleline.js";
 import Container from "../../components/Container.js";
 import { isEmptyArray, emailValidator } from "../../core/utils.js";
+import AppContext from "../../context/AppContext.js";
 
 export default class ForgotPasswordScreen extends React.Component {
+    static contextType = AppContext
 
     state = {
         email: "",
@@ -25,22 +28,31 @@ export default class ForgotPasswordScreen extends React.Component {
     render() {
         return (
             <Wrapper style={{alignItems: "center"}}>
-                <BackButton goBack={() => this.props.navigation.goBack()}/>
-                <Container style={{ marginTop: 75}}>
-                    <ScalableText style={styles.title}>Réinitialisation mot de passe</ScalableText>
-                    <ScalableText style={styles.error}>{this.state.error}</ScalableText>
-                    <Input style={styles.inputText}
-                        value={this.state.email}
-                        updateData={(value) => this.setState({ email: value })}>
-                        Adresse e-mail</Input>
-                    <Button onPress={() => this.Forgot()}>Envoyer</Button>
-                </Container>
+                <ScrollView style={styles.scrollView}>
+                    <BackButton goBack={() => this.props.navigation.goBack()}/>
+                    <View style={{ alignItems: "center", paddingBottom: 15 }}>
+                        <Container style={{ marginTop: 75 }}>
+                            <Titleline size="75%">Réinitialisation mot de passe</Titleline>
+                            {/* <ScalableText style={styles.title}>Réinitialisation mot de passe</ScalableText> */}
+                            <ScalableText style={styles.error}>{this.state.error}</ScalableText>
+                            <Input style={styles.inputText}
+                                value={this.state.email}
+                                updateData={(value) => this.setState({ email: value })}>
+                                Adresse e-mail</Input>
+                            <Button onPress={() => this.Forgot()}>Envoyer</Button>
+                        </Container>
+                    </View>
+                </ScrollView>
             </Wrapper>
         );
     }
 };
 
 const styles = StyleSheet.create({
+    scrollView: {
+        flex: 1,
+        width: "100%"
+    },
     title: {
         width: "100%",
         fontSize: 21,

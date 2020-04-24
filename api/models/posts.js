@@ -7,17 +7,27 @@ const Schema = mongoose.Schema;
 const Post_Schema = new Schema({
     title: {type: String, required: true},
     description: {type: String, required: true},
-    up: {type: Number, default: 0},
-    down: {type: Number, default: 0},
     user: {type: Schema.Types.ObjectId, ref: "users", required: true},
     localisation: {
         city: {type: String},
         zip_code: {type: String, trim: true}
     },
-    comments: [{
-        user: {type: Schema.Types.ObjectId, ref: "users", required: true},
-        message: {type: String, required: true}
-    }, {timestamps: true}]
+    like: {
+        count : {type: Number, default: 0},
+        users : [String]
+    },
+    dislike: {
+        count : {type: Number, default: 0},
+        users : [String]
+    },
+    comment: {
+        count : {type: Number, default: 0},
+        comments: [{
+            user: {type: Schema.Types.ObjectId, ref: "users"},
+            message: {type: String},
+            createdAt: { type: Date, default: Date.now }
+        }]
+    }
 });
 
 Post_Schema.plugin(uniqueMongoose);

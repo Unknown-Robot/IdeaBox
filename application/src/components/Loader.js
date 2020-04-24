@@ -6,7 +6,7 @@ import Wrapper from "../components/Wrapper.js";
 export default class Loader extends React.Component {
 	render() {
 		return (
-			<Wrapper>
+			<Wrapper style={this.props.style}>
 				<ActivityIndicator style={styles.loading} size="large" color="#333333" />
 			</Wrapper>
 		);

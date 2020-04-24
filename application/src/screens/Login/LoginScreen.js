@@ -30,10 +30,13 @@ export default class LoginScreen extends React.Component {
         .then((response) => response.json())
         .then((Data) => {
             if(!Data) return this.setState({ error: "Un problème est survenu, veuillez réessayer ultérieurement." });
-            if(Data.success) this.context.setUser({
-                data: Data["data"],
-                token: "Bearer " + Data["token"]
-            });
+            if(Data.success) {
+                this.context.setUser({
+                    data: Data["data"],
+                    token: "Bearer " + Data["token"]
+                });
+                this.props.navigation.navigate("Home");
+            }
             else return this.setState({ error: "Adresse e-mail / mot de passe incorrect." });
         })
         .catch((error) => {

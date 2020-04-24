@@ -11,4 +11,6 @@ router.put("/:id/update", passport.authenticate("jwt", { session: false }), API.
 router.patch("/:id/restore", passport.authenticate("jwt", { session: false }), API.restore(Posts_Schema));
 router.delete("/:id/delete", passport.authenticate("jwt", { session: false }), API.delete(Posts_Schema));
 
+router.put("/:id/action", passport.authenticate("jwt", { session: false }), API.action(Posts_Schema));
+
 module.exports = router;

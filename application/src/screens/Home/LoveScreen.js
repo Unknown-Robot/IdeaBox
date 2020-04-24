@@ -1,7 +1,10 @@
 import * as React from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import { StyleSheet, ScrollView, RefreshControl } from "react-native";
 import ScalableText from "react-native-text";
+
+import Loader from "../../components/Loader.js";
 import Wrapper from "../../components/Wrapper.js";
+import Postminified from "../../components/Postminified.js";
 
 import AppContext from "../../context/AppContext.js";
 
@@ -10,85 +13,105 @@ export default class LoveScreen extends React.Component {
     static contextType = AppContext;
 
     state = {
-        posts: []
+        posts: [],
+        refreshing: false,
+        isLoading: true,
+        last_refresh: 0
     }
 
-    GetLikedPosts(Liked_Posts) {
-        let posts = [];
-        Liked_Posts.forEach(function(post) {
-            if(post["actions"] === "LIKE") liked_posts_selector.push(post["post_id"]);
-        });
-        return posts
+    componentDidMount() {
+        this.GetLikedPosts();
     }
 
-    async componentDidMount() {
-        if(this.context.user.data.liked_posts.length === 0) return;
+    async GetLikedPosts() {
         let params = JSON.stringify({
             selector: {
-                "_id": {
-                    "$in": this.GetLikedPosts(this.context.user.data.liked_posts)
+                "like.users": {
+                    "$in": [this.context.user.data["_id"]]
                 }
             },
             sort: {
-                up: -1
+                createdAt: -1,
+                like: -1
             },
             limit: 25
         });
         fetch(this.context.API_URL + "/posts/list", {
-            headers: {"content-type" : "application/json; charset=utf-8", "Authorization": this.context.user.token},
+            headers: {"Accept-Encoding": "gzip, deflate", "content-type" : "application/json; charset=utf-8", "Authorization": this.context.user.token},
             method: "POST",
             body: params
         })
         .then((response) => response.json())
         .then((Data) => {
-            if(!Data["data"]) return console.log("Empty posts.");
-            if(Data.success) {
-                Data["data"].sort(function(a, b) { return b["up"] - a["up"]}); // Sort by asc "up" key
-                this.setState({posts: Data["data"]});
-            }
-            else console.log(Data["errors"]);
+            if(Data["data"] && Data.success) this.setState({ posts: Data["data"], refreshing: false, isLoading: false });
+            else this.setState({ posts: [], refreshing: false, isLoading: false });
+
         })
         .catch((error) => {
             return console.error(error);
         });
     }
 
+    updatePost(key, post) {
+        if(Object.keys(this.state.posts[0]).length > 0) {
+            let stateCopy = Object.assign({}, this.state);
+            stateCopy.posts[key] = post;
+            this.setState(stateCopy);
+        }
+        else console.log("LoveScreen state update undefined post");
+    }
+
+    onRefresh() {
+        if((Date.now() - this.state.last_refresh) > 10000) { // Each 10s for refresh data
+            this.setState({ refreshing: true, last_refresh: Date.now() });
+            this.GetLikedPosts();
+        }
+    }
+
     renderPost() {
-        if(this.state.posts.length > 0) {
+        if(this.state.isLoading && this.state.posts.length === 0) {
+            return (
+                <Loader/>
+            );
+        }
+        
+        if(!this.state.isLoading && this.state.posts.length === 0) {
+            return (
+                <ScalableText style={styles.emptyResult}>Vous n'avez aimé aucune publications.</ScalableText> 
+            );
+        }
+        
+        if(!this.state.isLoading && this.state.posts.length > 0) {
             return this.state.posts.map((value, i) => {
-                let last = (i === this.state.posts.length - 1)? "true": "false"
                 return (
                     <Postminified 
                         key={i}
                         _key={i}
-                        _id={value._id}
-                        title={value.title}
-                        description={value.description}
-                        last={last}
-                        up={value.up}
-                        down={value.down}
-                        date={value.createdAt}
-                        comments={value.comments}
+                        api_url={this.context.API_URL + "/"}
+                        post={value}
                         onPress={() => this.props.navigation.navigate("Post", {
-                            post: value
+                            key: i,
+                            post: value,
+                            updatePost: (key, post) => this.updatePost(key, post)
                         })}
                     />
                 );
             });
         }
-        else {
-            return (
-                <ScalableText style={styles.emptyResult}>Vous n'avez aimé aucune publications.</ScalableText>
-            );
-        }
     }
 
     render() {
         return (
-            <Wrapper style={{ alignItems: "center" }}>
+            <Wrapper>
                 <ScrollView 
                     style={styles.scrollView} 
                     showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={this.onRefresh.bind(this)}
+                        />
+                    }
                 >
                     {this.renderPost()}
                 </ScrollView>
@@ -99,7 +122,8 @@ export default class LoveScreen extends React.Component {
 
 const styles = StyleSheet.create({
     scrollView: {
-        width: "100%",
+        flex: 1,
+        width: "100%"
     },
     emptyResult: {
         flex: 1,
@@ -110,4 +134,3 @@ const styles = StyleSheet.create({
         fontFamily: "VarelaRound"
     }
 });
-

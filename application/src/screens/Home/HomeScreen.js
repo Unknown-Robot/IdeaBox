@@ -25,32 +25,38 @@ export default class HomeScreen extends React.Component {
 
     getAllPost() {
         let params = JSON.stringify({
-            selector: {
+            "selector": {
                 "localisation.city": this.context.user.data.localisation["city"],
                 "localisation.zip_code": this.context.user.data.localisation["zip_code"]
             },
-            sort: {
-                up: -1
+            "sort": {
+                "createdAt": -1,
+                "like.count": -1
             },
-            limit: 25
+            "limit": 25
         });
         fetch(this.context.API_URL + "/posts/list", {
-            headers: {"content-type" : "application/json; charset=utf-8", "Authorization": this.context.user.token},
+            headers: {"Accept-Encoding": "gzip, deflate", "content-type" : "application/json; charset=utf-8", "Authorization": this.context.user.token},
             method: "POST",
             body: params
         })
         .then((response) => response.json())
         .then((Data) => {
-            if(!Data["data"]) return console.log("Empty posts.");
-            if(Data.success) {
-                Data["data"].sort(function(a, b) { return b["up"] - a["up"]}); // Sort by asc "up" key
-                this.setState({ posts: Data["data"], refreshing: false, isLoading: false })
-            }
-            else console.log(Data["errors"]);
+            if(Data["data"] && Data.success) this.setState({ posts: Data["data"], refreshing: false, isLoading: false });
+            else this.setState({ posts: [], refreshing: false, isLoading: false });
         })
         .catch((error) => {
             return console.error(error);
         });
+    }
+
+    updatePost(key, post) {
+        if(Object.keys(this.state.posts[key]).length > 0) {
+            let stateCopy = Object.assign({}, this.state);
+            stateCopy.posts[key] = post;
+            this.setState(stateCopy);
+        }
+        else console.log("HomeScreen state update undefined post");
     }
 
     onRefresh() {
@@ -61,40 +67,40 @@ export default class HomeScreen extends React.Component {
     }
 
     renderPost() {
+        if(this.state.isLoading && this.state.posts.length === 0) {
+            return (
+                <Loader/>
+            );
+        }
+        
+        if(!this.state.isLoading && this.state.posts.length === 0) {
+            return (
+                <ScalableText style={styles.emptyResult}>Aucun résultat.</ScalableText>
+            );
+        }
+        
         if(!this.state.isLoading && this.state.posts.length > 0) {
             return this.state.posts.map((value, i) => {
-                let last = (i === this.state.posts.length - 1)? "true": "false"
                 return (
-                    <Postminified
+                    <Postminified 
                         key={i}
                         _key={i}
-                        _id={value._id}
-                        title={value.title}
-                        description={value.description}
-                        last={last}
-                        up={value.up}
-                        down={value.down}
-                        date={value.createdAt}
-                        comments={value.comments}
+                        api_url={this.context.API_URL + "/"}
+                        post={value}
                         onPress={() => this.props.navigation.navigate("Post", {
-                            post: value
+                            key: i,
+                            post: value,
+                            updatePost: (key, post) => this.updatePost(key, post)
                         })}
                     />
                 );
             });
         }
-        else {
-            return (
-                <Loader>
-                    {/* <ScalableText style={styles.emptyResult}>Aucun résultat.</ScalableText> */}
-                </Loader>
-            );
-        }
     }
 
     render() {
         return (
-            <Wrapper style={{ alignItems: "center" }}>
+            <Wrapper>
                 <ScrollView
                     style={styles.scrollView} 
                     showsVerticalScrollIndicator={false}
@@ -116,8 +122,7 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
-        width: "100%",
-        marginTop: 60
+        width: "100%"
     },
     emptyResult: {
         flex: 1,

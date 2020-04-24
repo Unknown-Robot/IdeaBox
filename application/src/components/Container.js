@@ -15,7 +15,6 @@ export default class Container extends React.Component {
 const styles = StyleSheet.create({
 	container: {
         width: screenWidth() - 30,
-        maxWidth: 400,
         backgroundColor: "#FFFFFF",
         borderRadius: 30,
         padding: 30,

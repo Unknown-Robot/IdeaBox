@@ -17,6 +17,6 @@ const styles = StyleSheet.create({
 	view: {
 		flex: 1,
 		width: "100%",
-		paddingTop: (Platform.OS === "android" || Platform.OS === "ios")? getStatusBarHeight() + 2.5: 0,
+		paddingTop: (Platform.OS === "android" || Platform.OS === "ios")? getStatusBarHeight(): 0,
 	}
 });

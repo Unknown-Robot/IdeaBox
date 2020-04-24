@@ -2,10 +2,11 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const bodyParser = require("body-parser");
 const passport = require("passport");
 const moment = require("moment");
+const compression = require("compression");
 const path = require("path");
+const fileupload = require("express-fileupload");
 /*
 
 	PRODUCTION : 
@@ -47,22 +48,16 @@ else if(process.env.NODE_ENV === "development" || process.env.NODE_ENV === "dev"
 moment.locale("fr");
 
 /**
- * 	urlencoded configuration.
- */
-
-app.use(bodyParser.urlencoded({extended: false}));
-
-/**
  * 	JSON Express configuration.
  */
 
-app.use(bodyParser.json());
+app.use(express.json({ limit: "10mb" }));
 
 /**
- * 	Default charset Express configuration.
+ * 	urlencoded configuration.
  */
 
-app.use(bodyParser.text({defaultCharset: "utf-8"}));
+app.use(express.urlencoded({extended: false}));
 
 /**
  * 	Password configuration.
@@ -76,6 +71,22 @@ require(__basedir + "/config/passport.js")(passport);
  */
 
 app.use(express.static(path.join(__dirname, "public")));
+
+/**
+ * 	Compression configuration
+ */
+
+app.use(compression());
+
+/**
+ * 	Fileupload configuration
+ */
+
+app.use(fileupload({
+	useTempFiles: true,
+	tempFileDir: __basedir + "/cache/"
+}));
+
 
 /**
  * 	Routers path configuration.

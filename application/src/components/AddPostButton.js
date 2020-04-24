@@ -15,6 +15,11 @@ export default class AddPostButton extends React.Component {
 const styles = StyleSheet.create({
 	container: {
 		position: "absolute",
+		flex: 1,
+        alignItems: "center",
+		justifyContent: "center",
+		width: 48,
+		height: 48,
 		bottom: 20,
 		right: 20,
 		backgroundColor: "white",

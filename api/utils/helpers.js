@@ -33,7 +33,6 @@ const handleAPIError = (res, error) => {
         status = 400;
     }
     else APIErrors = error;
-    console.log(APIErrors);
     // Return errors
     return res.status(status).send({
         success: false,
@@ -53,23 +52,22 @@ const getGeographicData = async (data) => {
     });
 }
 
-function CleanPublicData(User) {
-    if(!Array.isArray(User)) {
-        if("user" in User) {
-            User.user.password = undefined;
-            User.user._v = undefined;
-        }
+// TODO CLEAN ALL USER DATA SENSISBLE IN ARRAY OR OBJECT (COMMENTS)
+
+function CleanPublicData(Data) {
+    if(!Array.isArray(Data)) {
+        if("user" in Data) Data.user["password"] = undefined;
         else {
-            User.password = undefined;
-            User._v = undefined;
+            Data["password"] = undefined;
+            Data["__v"] = undefined;
         }
     }
     else {
-        for(let i = 0; i < User.length; i++) {
-            User[i] = CleanPublicData(User[i]);
+        for(let i = 0; i < Data.length; i++) {
+            Data[i] = CleanPublicData(Data[i]);
         }
     }
-    return User;
+    return Data;
 }
 
 function Log(IP=null, Message) {

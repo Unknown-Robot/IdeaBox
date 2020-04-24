@@ -15,11 +15,11 @@ export default class SearchScreen extends React.Component {
     static contextType = AppContext;
 
     state = {
-        isLoading: false,
-        searchValue: "",
+        posts: [],
         refreshing: false,
+        isLoading: true,
         last_refresh: 0,
-        posts: []
+        searchValue: ""
     }
 
     async SearchPost(value) {
@@ -33,30 +33,32 @@ export default class SearchScreen extends React.Component {
                 ]
             },
             sort: {
-                up: -1
+                like: -1
             },
             limit: 25
         });
         fetch(this.context.API_URL + "/posts/list", {
-            headers: {"content-type" : "application/json; charset=utf-8", "Authorization": this.context.user.token},
+            headers: {"Accept-Encoding": "gzip, deflate", "content-type" : "application/json; charset=utf-8", "Authorization": this.context.user.token},
             method: "POST",
             body: params
         })
         .then((response) => response.json())
         .then((Data) => {
-            if(!Data) console.log("Empty result !");
-            if(Data.success) {
-                Data["data"].sort(function(a, b) {return b["up"] - a["up"]}); // Sort by asc "up" key
-                this.setState({ posts: Data["data"], isLoading: false, refreshing: false });
-            }
-            else {
-                if(Data["message"]) console.log(Data["message"]);
-                this.setState({ isLoading: false, posts: [] });
-            }
+            if(Data["data"] && Data.success) this.setState({ posts: Data["data"], refreshing: false, isLoading: false });
+            else this.setState({ posts: [], refreshing: false, isLoading: false });
         })
         .catch((error) => {
             return console.error(error);
         });
+    }
+
+    updatePost(key, post) {
+        if(Object.keys(this.state.posts[0]).length > 0) {
+            let stateCopy = Object.assign({}, this.state);
+            stateCopy.posts[key] = post;
+            this.setState(stateCopy);
+        }
+        else console.log("SearchScreen state update undefined post");
     }
 
     renderPost() {
@@ -76,21 +78,16 @@ export default class SearchScreen extends React.Component {
         
         if(!this.state.isLoading && this.state.posts.length > 0) {
             return this.state.posts.map((value, i) => {
-                let last = (i === this.state.posts.length - 1)? "true": "false"
                 return (
                     <Postminified 
                         key={i}
                         _key={i}
-                        _id={value._id}
-                        title={value.title}
-                        description={value.description}
-                        last={last}
-                        up={value.up}
-                        down={value.down}
-                        date={value.createdAt}
-                        comments={value.comments}
+                        api_url={this.context.API_URL + "/"}
+                        post={value}
                         onPress={() => this.props.navigation.navigate("Post", {
-                            post: value
+                            key: i,
+                            post: value,
+                            updatePost: (key, post) => this.updatePost(key, post)
                         })}
                     />
                 );
@@ -107,8 +104,7 @@ export default class SearchScreen extends React.Component {
 
     render() {
         return (
-            <Wrapper style={{ alignItems: "center" }}>
-                <SearchBar searchAction={(value) => this.SearchPost(value)}/>
+            <Wrapper>
                 <ScrollView
                     style={styles.scrollView} 
                     showsVerticalScrollIndicator={false}
@@ -119,6 +115,7 @@ export default class SearchScreen extends React.Component {
                         />
                     }
                 >
+                    <SearchBar searchAction={(value) => this.SearchPost(value)}/>
                     {this.renderPost()}
                 </ScrollView>
             </Wrapper>
@@ -128,10 +125,8 @@ export default class SearchScreen extends React.Component {
 
 const styles = StyleSheet.create({
     scrollView: {
-        width: "100%",
-        zIndex: 99,
-        overflow: "hidden",
-        marginTop: 60
+        flex: 1,
+        width: "100%"
     },
     emptyResult: {
         flex: 1,

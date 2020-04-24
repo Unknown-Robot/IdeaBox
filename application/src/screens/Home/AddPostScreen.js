@@ -39,7 +39,7 @@ export default class AddPostScreen extends React.Component {
                 }
             });
             fetch(this.context.API_URL + "/posts/create", {
-                headers: {"content-type" : "application/json; charset=utf-8", "Authorization": this.context.user.token},
+                headers: {"Accept-Encoding": "gzip, deflate", "content-type" : "application/json; charset=utf-8", "Authorization": this.context.user.token},
                 method: "POST",
                 body: params
             })

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import ScalableText from "react-native-text";
 
 export default class Button extends React.Component {
@@ -19,17 +19,15 @@ export default class Button extends React.Component {
 const styles = StyleSheet.create({
     button: {
         width: "100%",
-        maxWidth: 340,
         height: 50,
         marginVertical: 7.50,
-        borderRadius: 10
+        borderRadius: 10,
+        justifyContent: "center",
     },
     text: {
         width: "100%",
-        height: 50,
         fontSize: 19,
         fontFamily: "VarelaRound",
-        lineHeight: 50,
         textAlign: "center"
     },
     filled: {

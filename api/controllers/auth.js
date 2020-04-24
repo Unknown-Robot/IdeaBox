@@ -7,7 +7,7 @@ exports.login = async (req, res) => {
     Log(IP, "API Request : Login");
     const {email, password} = req.body;
     if(!email || !password) return res.status(400).send({success: false, message: "Login data is null."});
-    User.findOne({"email": email}, async function(err, _User) {
+    User.findOne({ "email": email }, async function(err, _User) {
         if(err) return handleAPIError(res, err);
         if(!_User || !await _User.ValidPassword(password)) return res.status(400).send({success: false, message: "Incorrect email or password."});
         const payload = {

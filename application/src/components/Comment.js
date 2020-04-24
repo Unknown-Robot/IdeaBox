@@ -1,42 +1,81 @@
 import * as React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity, Image, View } from "react-native";
 import ScalableText from "react-native-text";
 import Container from "./Container.js";
+import * as Animatable from "react-native-animatable";
 
 import moment from "moment";
 
 export default class Comment extends React.Component {
     render() {
         return (
-            <Container style={styles.container}>
-                <ScalableText style={styles.username}>{this.props.first_name} {this.props.last_name}</ScalableText>
-                <ScalableText style={styles.date}>{moment.utc(this.props.date).utcOffset("GMT+02:00").format("DD MMMM, HH:mm")}</ScalableText>
-                <ScalableText style={styles.message}>{this.props.message}</ScalableText>
-            </Container>
+            <Animatable.View 
+                animation={(this.props._key % 2)? "bounceInLeft": "bounceInRight"}
+                duration={1500}
+                style={{alignItems: "center"}}>
+                <TouchableOpacity onLongPress={() => this.props.onLongPress(this.props.comment)}>
+                    <Container style={(this.props.last)? [styles.container, styles.last]: styles.container}>
+                        <View style={styles.header}>
+                            <TouchableOpacity>
+                                <Image style={styles.image} source={{ uri: this.props.api_url + this.props.comment.user["profile_pic"] }} />
+                            </TouchableOpacity>
+                            <View>
+                                <ScalableText numberOfLines={1} style={styles.username}>{this.props.comment.user["first_name"]} {this.props.comment.user["last_name"]}</ScalableText>
+                                <ScalableText numberOfLines={1} style={styles.date}>{moment.utc(this.props.comment["date"]).utcOffset("GMT+02:00").format("DD MMMM, HH:mm")}</ScalableText>
+                            </View>
+                        </View>
+                        <View style={styles.content}>
+                            <ScalableText style={styles.message}>{this.props.comment["message"]}</ScalableText>
+                        </View>
+                    </Container>
+                </TouchableOpacity>
+            </Animatable.View>
         );
     }
 };
 
 const styles = StyleSheet.create({
     container: {
-        width: "100%",
         padding: 20,
-        borderRadius: 15
+        alignItems: "center",
+        margin: 10
+    },
+    header: {
+        width: "100%",
+        height: 40,
+        flex: 1,
+        flexDirection: "row",
+        marginBottom: 10
+    },
+    image: {
+        width: 40,
+        height: 40,
+        borderRadius: 75
     },
     username: {
         width: "100%",
+        height: 20,
         color: "black",
         fontSize: 16,
         fontFamily: "VarelaRound",
-        marginBottom: 5,
+        paddingLeft: 10,
+        marginVertical: 2.50,
         textAlign: "left",
+        textAlignVertical: "center"
     },
     date: {
         width: "100%",
+        height: 17.5,
         color: "black",
         fontSize: 11,
         fontFamily: "VarelaRound",
+        paddingLeft: 10,
         textAlign: "left",
+        textAlignVertical: "center"
+    },
+    content: {
+        width: "100%",
+        flex: 1
     },
     message: {
         width: "100%",
@@ -44,7 +83,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontFamily: "VarelaRound",
         textAlign: "left",
-        alignSelf: "center",
-        marginTop: 25,
+        alignSelf: "center"
+    },
+    last: {
+        marginBottom: 70
     }
 });

@@ -6,6 +6,7 @@ export default class Input extends React.Component {
         return (
             <TextInput
                 style={[styles.inputText, this.props.style]}
+                defaultValue={this.props.defaultValue}
                 placeholder={this.props.children}
                 placeholderTextColor="black"
                 onChangeText={(value) => this.props.updateData(value)}
@@ -18,7 +19,6 @@ export default class Input extends React.Component {
 const styles = StyleSheet.create({
     inputText: {
         width: "100%",
-        maxWidth: 340,
         minHeight: 50,
         marginVertical: 10,
         paddingLeft: 20,

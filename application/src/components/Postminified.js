@@ -3,34 +3,39 @@ import { StyleSheet, TouchableOpacity, Image, View } from "react-native";
 import ScalableText from "react-native-text";
 import Container from "./Container.js";
 import moment from "moment";
+import { MaterialIcons } from "react-native-vector-icons";
 import * as Animatable from "react-native-animatable";
 
 export default class Postminified extends React.Component {
+
     render() {
         return (
             <Animatable.View 
                 animation={(this.props._key % 2)? "bounceInLeft": "bounceInRight"}
-                duration={1500}>
-                <TouchableOpacity style={[
-                    styles.post,
-                    this.props.style,
-                    this.props.last === "true" && {
-                        borderBottomWidth: 0,
-                    }
-                ]} {...this.props}>
+                duration={1500}
+                style={{alignItems: "center"}}>
+                <TouchableOpacity onPress={this.props.onPress} onLongPress={() => console.log("Postminified : _id: '" + this.props.post._id + "' onLongPress !")}>
                     <Container style={styles.container}>
-                        <ScalableText style={styles.title} numberOfLines={2}>{this.props.title}</ScalableText>
-                        <ScalableText style={styles.description} numberOfLines={4}>{this.props.description}</ScalableText>
+                        <View style={styles.header}>
+                            <TouchableOpacity>
+                                <Image style={styles.image} source={{ uri: this.props.api_url + this.props.post.user["profile_pic"] }} />
+                            </TouchableOpacity>
+                            <View>
+                                <ScalableText numberOfLines={1} style={styles.username}>{this.props.post.user["first_name"]} {this.props.post.user["last_name"]}</ScalableText>
+                                <ScalableText numberOfLines={1} style={styles.date}>{moment.utc(this.props.post["createdAt"]).utcOffset("GMT+02:00").format("DD MMMM, HH:mm")}</ScalableText>
+                            </View>
+                        </View>
+                        <ScalableText style={styles.title} numberOfLines={2}>{this.props.post["title"]}</ScalableText>
+                        <ScalableText style={styles.description} numberOfLines={4}>{this.props.post["description"]}</ScalableText>
                         <View style={styles.actionsContainer}>
                             <View style={styles.actionsView}>
-                                <Image style={styles.imageUp} source={require("../assets/arrow_back.png")} />
-                                <ScalableText style={styles.up}>{this.props.up}</ScalableText>
-                                <Image style={styles.imageDown} source={require("../assets/arrow_back.png")} />
-                                <ScalableText style={styles.down}>{this.props.down}</ScalableText>
-                                <Image style={styles.imageComments} source={require("../assets/bulle.png")} />
-                                <ScalableText style={styles.comments}>{this.props.comments.length}</ScalableText>
+                                <MaterialIcons name="keyboard-arrow-up" color={"black"} size={24} />
+                                <ScalableText style={styles.up}>{this.props.post["like"]["count"]}</ScalableText>
+                                <MaterialIcons name="keyboard-arrow-down" color={"black"} size={24} />
+                                <ScalableText style={styles.down}>{this.props.post["dislike"]["count"]}</ScalableText>
+                                <MaterialIcons style={{ padding: 4 }} name="mode-comment" color={"black"} size={20} />
+                                <ScalableText style={styles.comments}>{this.props.post["comment"]["count"]}</ScalableText>
                             </View>
-                            <ScalableText style={styles.date}>{moment.utc(this.props.date).utcOffset("GMT+02:00").format("DD MMMM, HH:mm")}</ScalableText>
                         </View>
                     </Container>
                 </TouchableOpacity>
@@ -40,13 +45,43 @@ export default class Postminified extends React.Component {
 };
 
 const styles = StyleSheet.create({
-    post: {
+    container: {
+        padding: 20,
+        alignItems: "center",
         margin: 10
     },
-    container: {
+    header: {
         width: "100%",
-        padding: 20,
-        borderRadius: 15
+        height: 40,
+        flex: 1,
+        flexDirection: "row",
+        marginBottom: 10
+    },
+    image: {
+        width: 40,
+        height: 40,
+        borderRadius: 75
+    },
+    username: {
+        width: "100%",
+        height: 20,
+        color: "black",
+        fontSize: 16,
+        fontFamily: "VarelaRound",
+        paddingLeft: 10,
+        marginVertical: 2.50,
+        textAlign: "left",
+        textAlignVertical: "center"
+    },
+    date: {
+        width: "100%",
+        height: 17.5,
+        color: "black",
+        fontSize: 11,
+        fontFamily: "VarelaRound",
+        paddingLeft: 10,
+        textAlign: "left",
+        textAlignVertical: "center"
     },
     title: {
         width: "100%",
@@ -83,48 +118,21 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     up: {
-        minWidth: 15,
-        marginLeft: 5,
-        textAlign: "left",
+        width: 24,
+        textAlign: "center",
         justifyContent: "center",
         alignItems: "center",
     },
     down: {
-        minWidth: 15,
-        marginLeft: 5,
-        textAlign: "left",
+        width: 24,
+        textAlign: "center",
         justifyContent: "center",
         alignItems: "center",
     },
     comments : {
-        minWidth: 15,
-        marginLeft: 5,
-        textAlign: "left",
+        width: 24,
+        textAlign: "center",
         justifyContent: "center",
         alignItems: "center",
-    },
-    imageUp: {
-		width: 24,
-        height: 24,
-        transform: [{rotate: "90deg"}],
-    },
-    imageDown: {
-		width: 24,
-        height: 24,
-        transform: [{rotate: "-90deg"}],
-        marginLeft: 7.50,
-    },
-    imageComments: {
-        width: 20,
-        height: 20,
-        marginLeft: 7.50,
-        marginTop: 4
-    },
-    date: {
-        width: "40%",
-        color: "black",
-        fontSize: 12,
-        fontFamily: "VarelaRound",
-        textAlign: "right",
-    },
+    }
 });
